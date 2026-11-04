@@ -52,7 +52,7 @@ description: 实拍素材+口播自动混剪成 9:16 种草/带货短视频（�
 
 - 重扫后窗号变了：`python tools/remap_tags.py projects/<项目>/work`
 - 4K 素材或内存不足（x264 malloc failed）：先 ffmpeg 缩到 1080p，关掉占内存的程序再出片
-- 音效库为空：自动跳过音效、配乐用静音，见 `音效库/README.md`
+- 音效库为空：`python tools/get_sfx.py` 从 Mixkit 官网下载（出片时缺文件也会自动补下）
 - edge-tts 403：`pip install -U edge-tts`
 - 项目搬家：`python tools/repath.py <目录> <旧前缀> <新前缀>`
 - 详细说明：`docs/流程SOP.html`、`docs/安装底座.html`

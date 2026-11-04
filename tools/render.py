@@ -349,6 +349,8 @@ def main(proj, edl_name):
     if not cfg.get("音效目录"):
         cfg["音效目录"] = str(Path(__file__).resolve().parent.parent / "音效库")
     sfx_dir = Path(cfg["音效目录"])
+    if not (sfx_dir / edl["配乐"]["文件"]).exists() and not cfg.get("音效目录_自定义"):
+        subprocess.run([sys.executable, str(Path(__file__).resolve().parent / "get_sfx.py")])
     miss = [e["类型"] for e in edl["音效"] if not (sfx_dir / cfg["音效"][e["类型"]]["文件"]).exists()]
     edl["音效"] = [e for e in edl["音效"] if e["类型"] not in miss]
     if not (sfx_dir / edl["配乐"]["文件"]).exists():   # 没放配乐：用静音占位，剪映里自己加

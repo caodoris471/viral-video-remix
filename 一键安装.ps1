@@ -34,7 +34,9 @@ if (Test-Path $font) { Write-Host "花字字体 OK" } else { Write-Host "缺花�
 $jy = "$env:LOCALAPPDATA\JianyingPro\User Data\Projects\com.lveditor.draft\root_meta_info.json"
 if (Test-Path $jy) { Write-Host "剪映 OK" } else { Write-Host "没找到剪映专业版草稿索引：先装剪映并打开一次。" -ForegroundColor Yellow }
 
+Step "下载 Mixkit 免费音效和配乐"
+try { python "$here	ools\get_sfx.py" } catch { Write-Host "音效下载失败，稍后重跑 python tools\get_sfx.py" -ForegroundColor Yellow }
+
 Step "自检"
 python -c "import cv2, numpy, rapidocr_onnxruntime, faster_whisper, pyJianYingDraft, edge_tts; print('依赖全部可导入')"
 Write-Host "`n安装完成。在 Codex / Claude Code 里说：用 real-footage-montage 帮我做一批混剪" -ForegroundColor Green
-Write-Host "音效库为空也能出片；想要音效见 音效库\README.md" -ForegroundColor Green

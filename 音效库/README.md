@@ -1,7 +1,14 @@
 # 音效库
 
-音效和配乐的许可不允许转发文件，这里不附带。自己从免费音效站（如 mixkit.co、pixabay.com/sound-effects）下载后放进这个文件夹，再在项目 `config.json` 的 `音效`、`配乐` 里写文件名。
+安装时自动从 Mixkit 官网下载（`python tools/get_sfx.py`），出片时发现缺文件也会自动补下。仓库本身不带文件，因为 Mixkit 许可不允许再分发素材文件；每台电脑自己从官网下载是允许的，成片可免费商用。许可：https://mixkit.co/license/
 
-没有放也能出片：缺的音效自动跳过，配乐用静音占位，之后在剪映里自己加。
+| 文件 | 用途 |
+|---|---|
+| mixkit_2354 / 2357 | pop：大字弹出 |
+| mixkit_1491 / 1492 / 1486 | whoosh：转场 |
+| mixkit_190 | wood：敲击强调 |
+| mixkit_937 / 938 | chime：结尾提问 |
+| mixkit_1430 / 1431 | shutter：快门 |
+| music_801 / 5 / 621 / 1072 | 配乐 |
 
-默认配置用到的文件名：`mixkit_2354.mp3`(pop)、`mixkit_1491.mp3`(whoosh)、`mixkit_190.mp3`(wood)、`mixkit_938.mp3`(chime)、`mixkit_1430.mp3`(shutter)、`music_801.mp3`(配乐)。
+想换别的：从 mixkit.co 下载放进来，在项目 config.json 的 `音效` / `配乐` 改文件名。

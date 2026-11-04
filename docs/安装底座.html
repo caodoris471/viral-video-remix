@@ -34,7 +34,7 @@ td,th{border-top:1px solid var(--line);padding:7px 8px;text-align:left;vertical-
 <div class="pre"><pre id="p2">用 real-footage-montage 帮我做一批混剪</pre><button class="copy" data-for="p2">复制</button></div>
 <p>它会先问你：目标国家/语言、AI 配音还是真人配音（AI 只问男声/女声）、这批出几条（对应几个爆款结构）、品类和素材在哪。答完就自动往下跑。</p>
 </div>
-<div class="tip">AI 会自动处理：装 git / Python / ffmpeg（缺的话用 winget）、装依赖、装浏览器驱动、检查字体和剪映。你只需要在它提示时：装剪映专业版并打开一次；采集平台时扫码登录。</div>
+<div class="tip">AI 会自动处理：装 git / Python / ffmpeg（缺的话用 winget）、装依赖、装浏览器驱动、下载 Mixkit 音效配乐、检查字体和剪映。你只需要在它提示时：装剪映专业版并打开一次；采集平台时扫码登录。</div>
 </section>
 
 <section id="step" role="tabpanel" aria-labelledby="t2" hidden>
@@ -70,8 +70,8 @@ powershell -ExecutionPolicy Bypass -File .\一键安装.ps1</pre><button class="
 <div class="card">装剪映专业版后<b>打开一次</b>，生成草稿索引。草稿目录改过位置的，安装草稿时加 <code>--draft-root 你的草稿目录</code>。<br>
 中文花字预览用「汉仪雅酷黑 95W」（可选，右键字体 → 为当前用户安装）；用别的字体：<code>setx MIX_KWFONT "C:/Windows/Fonts/你的字体.ttf"</code>。外语自动用系统自带字体（Segoe UI Black / Yu Gothic / Malgun Gothic / Leelawadee）。剪映草稿用剪映自带字体，不受影响。</div>
 
-<h2>第 6 步 音效和配乐（可选）</h2>
-<div class="card">许可原因，仓库不带音效文件。自己从 mixkit.co 或 pixabay.com/sound-effects 下载，放进 <code>音效库\</code>，在项目 config 的 <code>音效</code>/<code>配乐</code> 写文件名。不放也能出片，配乐在剪映里加。</div>
+<h2>第 6 步 音效和配乐（自动）</h2>
+<div class="card">安装脚本会自动从 Mixkit 官网下载 10 个音效 + 4 首配乐到 <code>音效库\</code>（免费可商用）。没下成功就单独跑 <code>python tools\get_sfx.py</code>。想换音效：从 mixkit.co 下载放进去，改项目 config 的 <code>音效</code>/<code>配乐</code> 文件名。</div>
 
 <h2>第 7 步 新建项目</h2>
 <div class="card"><div class="pre"><pre id="p7">xcopy /E /I projects\_模板 projects\北欧风服装店</pre><button class="copy" data-for="p7">复制</button></div>改 <code>config.json</code> 和分镜模板，替换项见下表。之后按 <code>docs/流程SOP.html</code> 走，或直接让 AI 带你跑。</div>
