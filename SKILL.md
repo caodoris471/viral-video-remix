@@ -10,7 +10,9 @@ description: 实拍素材+口播自动混剪成 9:16 种草/带货短视频（�
 ## 开工前必问（一次问完，用提问工具给选项）
 
 1. **目标国家/语言**：中国(zh) / 美国(en) / 英国(en-GB) / 日本(ja) / 韩国(ko) / 墨西哥·西语(es) / 巴西(pt) / 法国(fr) / 德国(de) / 意大利(it) / 俄罗斯(ru) / 印尼(id) / 马来(ms) / 越南(vi) / 菲律宾(fil) / 泰国(th)。
-2. **口播**：AI / 真人 / 两版都要。选 AI 时，给出该语言的热门音色让用户选（`python tools/tts_edge.py --list --lang=<代码>`，男声第 1 个是默认）。中文默认 `zh-CN-YunxiNeural`（云希），用户已认可，不必再问。
+2. **配音方式**：AI 配音 / 真人配音（用户自己录） / 两版都要。
+   - 选 AI：只问**男声还是女声**，不问具体音色。自动用该语言最热门的免费音色（`--gender=男|女`；中文男=云希，女=晓晓）。
+   - 选真人：让用户按文稿录音，放进 `inputs/`。
 3. **批次规模**：这批出几条成片（如 5 条），对应几个爆款结构（每条一个结构 S1…Sn）。对标视频一共几条、链接或文件在哪。
 4. **品类和素材**：品类名、原片在哪（没有就先走采集）。
 
@@ -37,7 +39,7 @@ description: 实拍素材+口播自动混剪成 9:16 种草/带货短视频（�
 3. **扫素材+打标签**：`python tools/scan.py projects/<项目>` → `python tools/summary.py projects/<项目>` → 看 `work/sheets/*.png` 写 `work/tags.json`（只标裁切后清楚可见的；口播人像/效果图/画中画/后期标注要标出来）。
 4. **写文案**：每个结构一份 `inputs/文稿_Sn.txt`，一句一行。每句列「画面必须有什么」，对照 tags 每类 ≥2 个 ≥4 秒窗；不够先补素材或改句。
 5. **口播**（每份文稿）：
-   - AI：`python tools/tts_edge.py inputs/文稿_S1.txt inputs/S1_AI.mp3 --lang=<代码> [--voice=音色]` → `python tools/voice_prep.py inputs/S1_AI.mp3 inputs/文稿_S1.txt work/口播_S1_AI --lang=<代码>`
+   - AI：`python tools/tts_edge.py inputs/文稿_S1.txt inputs/S1_AI.mp3 --lang=<代码> --gender=<男|女>` → `python tools/voice_prep.py inputs/S1_AI.mp3 inputs/文稿_S1.txt work/口播_S1_AI --lang=<代码>`
    - 真人：`python tools/voice_prep.py <录音> inputs/文稿_S1.txt work/口播_S1 --lang=<代码>` → 有重录 `python tools/voice_splice.py work/口播_S1 work/口播_S1b 2=<重录>` → `python tools/voice_speed.py work/口播_S1b work/口播_S1_快 1.25`
 6. **分镜**：`python tools/plan_beats.py projects/<项目> <timestamps.json>` → 写 `分镜_S1_AI.json`（爆款结构/对标链接/句/起字/要点/必需/优先/关键词/出转场；英语等语言「起字」是第几个词，关键词写口播原词）→ `python tools/coverage.py projects/<项目> 分镜_S1_AI.json`，合格数 0 的段先补。
 7. **配镜头+调色**：`python tools/match.py projects/<项目> 分镜_S1_AI.json` → `python tools/grade.py projects/<项目> EDL_S1_AI.json`

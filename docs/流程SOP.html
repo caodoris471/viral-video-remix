@@ -24,7 +24,7 @@ pre{background:#2a2420;color:#f3e9da;padding:12px 14px;border-radius:8px;overflo
 <h2>开工前先定 4 件事</h2>
 <table class="rules">
 <tr><td>1</td><td><b>目标国家/语言</b>：zh / en / en-GB / ja / ko / es / pt / fr / de / it / ru / id / ms / vi / fil / th。决定配音、识别、字幕字体、按字还是按词切。</td></tr>
-<tr><td>2</td><td><b>口播</b>：AI / 真人 / 两版。AI 从该语言热门音色里选（<code>tts_edge.py --list --lang=en</code>），中文默认云希。</td></tr>
+<tr><td>2</td><td><b>配音方式</b>：AI 配音 / 真人配音 / 两版。AI 只选男声或女声，自动用该语言最热门的免费音色（中文男=云希，女=晓晓）。</td></tr>
 <tr><td>3</td><td><b>批次</b>：这批几条成片 = 几个爆款结构 S1…Sn，各自对应哪条对标视频。</td></tr>
 <tr><td>4</td><td><b>品类和素材</b>：品类名、原片在哪。</td></tr>
 </table>
@@ -71,7 +71,7 @@ pre{background:#2a2420;color:#f3e9da;padding:12px 14px;border-radius:8px;overflo
 
 <div class="node" id="n4"><h3><b>4</b>口播：真人版 / AI 版</h3><table>
 <tr><th>真人</th><td>录音放 <code>inputs/</code> → <code>voice_prep.py</code>（对齐文稿、剪口误、压停顿、出逐字时间戳）→ 有重录用 <code>voice_splice.py 2=第二句.m4a</code> → <code>voice_speed.py … 1.25</code>（不变调提速 + 降噪 + 压缩）</td></tr>
-<tr><th>AI</th><td><code>tts_edge.py 文稿_S1.txt S1.mp3 --lang=en [--voice=en-US-BrianNeural]</code>（免费，16 种语言；不写 voice 用默认男声，中文=云希）→ <code>voice_prep.py … --lang=en</code>。英语等按词对齐，中文/日文/泰文按字。ElevenLabs（<code>tts_elevenlabs.py</code>，key 放环境变量）可选。</td></tr>
+<tr><th>AI</th><td><code>tts_edge.py 文稿_S1.txt S1.mp3 --lang=en --gender=女</code>（免费，16 种语言，按性别自动选最热门音色）→ <code>voice_prep.py … --lang=en</code>。英语等按词对齐，中文/日文/泰文按字。ElevenLabs（<code>tts_elevenlabs.py</code>，key 放环境变量）可选。</td></tr>
 <tr><th>输出</th><td><code>口播_精剪.wav</code> + <code>timestamps.json</code></td></tr>
 <tr><th>排查</th><td><code>voice_inspect.py &lt;目录&gt; &lt;句号&gt;</code> 看某句逐字时间和音量，找没压掉的停顿</td></tr>
 </table></div>

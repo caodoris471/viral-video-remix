@@ -1,7 +1,7 @@
 """AI 口播（免费）：edge-tts 生成配音，再交给 voice_prep 对齐出时间戳。
 
-用法: python tts_edge.py <文稿.txt> <输出mp3> [--lang=zh] [--voice=音色] [--rate=+25%]
-不写 --voice 就用该语言的默认男声（中文=云希）。列出某语言的热门音色: python tts_edge.py --list --lang=en
+用法: python tts_edge.py <文稿.txt> <输出mp3> [--lang=zh] [--gender=男|女] [--voice=音色] [--rate=+25%]
+不写 --voice 就按性别用该语言最热门的免费音色（中文男=云希，女=晓晓）。列出某语言的热门音色: python tts_edge.py --list --lang=en
 """
 import asyncio, sys
 import edge_tts
@@ -27,4 +27,5 @@ if __name__ == "__main__":
     a = [x for x in sys.argv[1:] if not x.startswith("--")]
     if len(a) < 2:
         sys.exit(__doc__)
-    asyncio.run(main(a[0], a[1], opt("voice", li["male"][0]), opt("rate", "+25%" if code == "zh" else "+10%")))
+    pick = li["female"][0] if opt("gender", "男") in ("女", "female", "f") else li["male"][0]
+    asyncio.run(main(a[0], a[1], opt("voice", pick), opt("rate", "+25%" if code == "zh" else "+10%")))
