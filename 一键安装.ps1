@@ -39,4 +39,4 @@ try { python "$here	ools\get_sfx.py" } catch { Write-Host "音效下载失败，
 
 Step "自检"
 python -c "import cv2, numpy, rapidocr_onnxruntime, faster_whisper, pyJianYingDraft, edge_tts; print('依赖全部可导入')"
-Write-Host "`n安装完成。在 Codex / Claude Code 里说：用 real-footage-montage 帮我做一批混剪" -ForegroundColor Green
+Write-Host "`n安装完成。在 Codex / Claude Code 里说：用 viral-video-remix 帮我做一批混剪" -ForegroundColor Green
