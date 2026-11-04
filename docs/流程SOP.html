@@ -1,0 +1,123 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>实拍混剪流程SOP</title>
+<style>
+:root{--bg:#f7f4ee;--card:#fff;--ink:#2a2420;--mute:#7a6f66;--acc:#b5651d;--line:#e6ddd0;--ok:#3f7d4e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 "Microsoft YaHei",system-ui,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:32px 20px 80px}
+h1{font-size:28px;margin:0 0 6px}h2{font-size:20px;margin:40px 0 12px;border-left:4px solid var(--acc);padding-left:10px}
+.sub{color:var(--mute);margin:0 0 24px}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:16px 0 8px;font-size:13px}
+.flow a{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 10px;color:var(--ink);text-decoration:none}
+.flow a:hover{border-color:var(--acc)}.flow span{color:var(--mute)}
+.node{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:14px 0}
+.node h3{margin:0 0 8px;font-size:17px}.node h3 b{color:var(--acc);margin-right:8px}
+table{border-collapse:collapse;width:100%;font-size:14px}td,th{border-top:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{width:84px;color:var(--mute);font-weight:normal}
+code,pre{font-family:Consolas,"Cascadia Mono",monospace;font-size:13px}code{background:#f1ebe1;padding:1px 5px;border-radius:4px}
+pre{background:#2a2420;color:#f3e9da;padding:12px 14px;border-radius:8px;overflow:auto;margin:8px 0}
+.warn{background:#fff6e6;border:1px solid #f0d6a8;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:14px}
+.rules td:first-child{width:36px;color:var(--acc);font-weight:bold}
+</style></head><body><div class="wrap">
+<h1>实拍素材 + 口播 混剪 SOP</h1>
+<p class="sub">目标：一批 20–40 秒 9:16 种草/带货短视频（每条对应一个爆款结构，方便测试哪种结构有效），真人口播或 16 种语言的 AI 口播，产出预览 MP4 + 剪映草稿 + 批次清单。换品类/换国家只改项目配置，工具不改。</p>
+
+<h2>开工前先定 4 件事</h2>
+<table class="rules">
+<tr><td>1</td><td><b>目标国家/语言</b>：zh / en / en-GB / ja / ko / es / pt / fr / de / it / ru / id / ms / vi / fil / th。决定配音、识别、字幕字体、按字还是按词切。</td></tr>
+<tr><td>2</td><td><b>口播</b>：AI / 真人 / 两版。AI 从该语言热门音色里选（<code>tts_edge.py --list --lang=en</code>），中文默认云希。</td></tr>
+<tr><td>3</td><td><b>批次</b>：这批几条成片 = 几个爆款结构 S1…Sn，各自对应哪条对标视频。</td></tr>
+<tr><td>4</td><td><b>品类和素材</b>：品类名、原片在哪。</td></tr>
+</table>
+
+<div class="flow">
+<a href="#n0">0 采集对标</a><span>→</span><a href="#n1">1 爆款拆解</a><span>→</span><a href="#n2">2 扫素材+打标签</a><span>→</span><a href="#n3">3 写文案(对素材)</a><span>→</span><a href="#n4">4 口播</a><span>→</span><a href="#n5">5 分镜</a><span>→</span><a href="#n6">6 配镜头</a><span>→</span><a href="#n7">7 出片</a><span>→</span><a href="#n8">8 自检</a><span>→</span><a href="#n9">9 装进剪映</a>
+</div>
+
+<h2>五条硬规则</h2>
+<table class="rules">
+<tr><td>1</td><td>镜头 1.5–4 秒，中位约 2.5 秒（对标节奏 ≈0.35 切/秒）。短了像幻灯片，长了拖。</td></tr>
+<tr><td>2</td><td>只在句间或句内逗号停顿处切，开口前 2 帧。不在词中间切。</td></tr>
+<tr><td>3</td><td>每段先写「画面必须有什么」，裁切后画面里真的有，才能配。</td></tr>
+<tr><td>4</td><td>没有合格镜头就报缺镜头、停下补素材，不拿无关镜头凑。同一原镜头只用一次。</td></tr>
+<tr><td>5</td><td>优先动态镜头，静态最多 5 个且加 12% 推近。转场全片 ≤3 个，速度一律 1.0。</td></tr>
+</table>
+
+<h2>节点详情</h2>
+
+<div class="node" id="n0"><h3><b>0</b>采集对标 + 下载原片</h3><table>
+<tr><th>工具</th><td>skill <b>blogger-video-pipeline</b>（github.com/caodoris471/blogger-video-pipeline）：抖音 / 小红书 / 视频号 / B站 / 快手 / YouTube / TikTok / Instagram 都能抓，带互动数据筛选和下载</td></tr>
+<tr><th>输入</th><td>目标平台 + 品类关键词或博主（如「北欧风服装店探店」）</td></tr>
+<tr><th>输出</th><td>候选清单、互动数据排名、原片 mp4（放进 config 的素材目录）</td></tr>
+<tr><th>要点</th><td>只读不互动。每次 ≤3 个关键词、每词滚 2 次、词间隔 30–45 秒，单条间隔 25–40 秒；遇到 502/空数据/验证码立即停。<br>优先探店实拍、长镜头、字幕少的；别人剪好的快切合集基本没用。</td></tr>
+</table></div>
+
+<div class="node" id="n1"><h3><b>1</b>爆款拆解</h3><table>
+<tr><th>工具</th><td><code>transcribe.py</code>（本地 faster-whisper 逐句转写）、<code>ref_compare.py</code>（量切点节奏）</td></tr>
+<tr><th>输出</th><td>每条爆款一个结构编号 <b>S1…Sn</b>（和飞书文档「爆款结构1…n」对应，记下对标链接）：钩子 / 要点数 / 每段秒数 / 语速 / 结尾引导；剪辑节奏指标</td></tr>
+<tr><th>要点</th><td>一批几条成片就拆几条爆款，一条成片只用一个结构，后面才能比较哪个结构好。外语对标加 <code>--lang=en</code> 等。只借结构，不抄文字。</td></tr>
+</table></div>
+
+<div class="node" id="n2"><h3><b>2</b>扫素材 + 打标签</h3><table>
+<tr><th>工具</th><td><code>scan.py</code>（切点、OCR 避字幕自动 9:16 裁切、宽裁切、运动量、联系表）→ <code>summary.py</code> → 人或 AI 看 <code>work/sheets/*.png</code> 打标签（<code>tag_sheet.py</code> 辅助）</td></tr>
+<tr><th>输出</th><td><code>work/candidates.json</code>、<code>work/tags.json</code>（如 <code>{"A03":["全景_餐厅","暖光"]}</code>）、<code>work/file_ids.json</code>（素材固定编号）</td></tr>
+<tr><th>要点</th><td>只标裁切后清楚看得见的。口播人像、效果图、画中画、后期标注要标出来，匹配时自动排除。重扫后窗号变了用 <code>remap_tags.py</code> 搬标签。4K 素材先缩到 1080p 再入库，否则可能爆内存。</td></tr>
+</table></div>
+
+<div class="node" id="n3"><h3><b>3</b>写文案（先对素材）</h3><table>
+<tr><th>工具</th><td>LLM 写稿 + <code>overlap_check.py</code>（和参考稿 4 字重合率 &gt;30% 或连续相同 ≥12 字 → 改写）</td></tr>
+<tr><th>输出</th><td>每个结构一份 <code>inputs/文稿_S1.txt</code>…，一句一行</td></tr>
+<tr><th>要点</th><td>每句先写「画面必须有什么」，对照 tags.json：每类至少 2 个 ≥4 秒可用窗。不够就补素材或改句子。<b>素材够了再录音</b>，录完就改不了。口语化，别写成文言文。</td></tr>
+</table></div>
+
+<div class="node" id="n4"><h3><b>4</b>口播：真人版 / AI 版</h3><table>
+<tr><th>真人</th><td>录音放 <code>inputs/</code> → <code>voice_prep.py</code>（对齐文稿、剪口误、压停顿、出逐字时间戳）→ 有重录用 <code>voice_splice.py 2=第二句.m4a</code> → <code>voice_speed.py … 1.25</code>（不变调提速 + 降噪 + 压缩）</td></tr>
+<tr><th>AI</th><td><code>tts_edge.py 文稿_S1.txt S1.mp3 --lang=en [--voice=en-US-BrianNeural]</code>（免费，16 种语言；不写 voice 用默认男声，中文=云希）→ <code>voice_prep.py … --lang=en</code>。英语等按词对齐，中文/日文/泰文按字。ElevenLabs（<code>tts_elevenlabs.py</code>，key 放环境变量）可选。</td></tr>
+<tr><th>输出</th><td><code>口播_精剪.wav</code> + <code>timestamps.json</code></td></tr>
+<tr><th>排查</th><td><code>voice_inspect.py &lt;目录&gt; &lt;句号&gt;</code> 看某句逐字时间和音量，找没压掉的停顿</td></tr>
+</table></div>
+
+<div class="node" id="n5"><h3><b>5</b>写分镜 <code>分镜_&lt;版本&gt;.json</code></h3><table>
+<tr><th>工具</th><td><code>plan_beats.py</code> 按口播时间建议分段 → 手填 → <code>coverage.py</code> 覆盖检查</td></tr>
+<tr><th>每段字段</th><td><code>句</code> / <code>起字</code> / <code>要点</code> / <code>必需</code>(1–2 标签) / <code>优先</code> / <code>关键词</code>(词 必须和录音一致、显示、音效) / <code>出转场</code>(闪白·模糊·叠化)</td></tr>
+<tr><th>要点</th><td>文件名带结构号：<code>分镜_S1_AI.json</code>，里面写 <code>爆款结构</code>、<code>对标链接</code>，草稿名 <code>品类_S1_AI_V1</code>。英语等语言「起字」=第几个词。真人版、AI 版语速不同，各写一份。同一要点连 2–3 个同类镜头。大字和音效只放开头、每个要点标题、结尾提问。coverage 里合格数 0 的段先补素材。</td></tr>
+</table></div>
+
+<div class="node" id="n6"><h3><b>6</b>配镜头 + 调色</h3><table>
+<tr><th>工具</th><td><code>match.py &lt;项目&gt; 分镜.json</code> → <code>grade.py &lt;项目&gt; EDL.json</code>；预演模式缺镜头插占位卡</td></tr>
+<tr><th>输出</th><td><code>work/EDL_&lt;版本&gt;.json</code>（含降级记录、调色）</td></tr>
+<tr><th>逻辑</th><td>可选最少的段先配；打分 = 优先命中×3 + 运动量 + 清晰度；同要点优先同一原片；找不到先降级再报缺。grade 把亮度往全片中位拉一半。</td></tr>
+</table></div>
+
+<div class="node" id="n7"><h3><b>7</b>出片</h3><table>
+<tr><th>工具</th><td><code>render.py &lt;项目&gt; EDL.json</code>（ffmpeg 预览 + pyJianYingDraft 剪映草稿）</td></tr>
+<tr><th>输出</th><td><code>output/&lt;版本&gt;/</code>：<code>*_预览.mp4</code>、<code>*_预览_VSCode可播.mp4</code>、<code>剪映草稿/</code>、<code>素材/</code>、<code>安装到剪映.cmd</code></td></tr>
+<tr><th>画面</th><td>1080×1920，上下用同画面模糊填充；大字 5 种样式随机（花字/砸字/宋体/重点/竖排），开头固定花字（黄字深棕描边，汉仪雅酷黑 95W），逐字弹跳；草稿里用剪映原生字体和动画（波浪弹入/放大震动等），可直接改</td></tr>
+<tr><th>声音</th><td>口播 + 配乐 -14dB（人声时压低 6dB）+ 少量音效（pop/whoosh/wood/chime/shutter，Mixkit 免费库）</td></tr>
+</table></div>
+
+<div class="node" id="n8"><h3><b>8</b>自检</h3><table>
+<tr><th>工具</th><td><code>qa.py &lt;项目&gt; &lt;版本&gt;</code>、<code>ref_compare.py</code>（和对标比节奏）、<code>shot_stats.py</code>（查相邻镜头亮度/色温跳变）</td></tr>
+<tr><th>检查</th><td>镜头时长、切点位置、必需标签、窗重复、越界、总时长帧数；生成 <code>检查_逐段对照.png</code>。全部通过 + 对照图逐格看过，才交给人审。</td></tr>
+</table></div>
+
+<div class="node" id="n9"><h3><b>9</b>装进剪映</h3><table>
+<tr><th>操作</th><td><b>先完全退出剪映（托盘也退）</b> → 双击版本目录里 <code>安装到剪映.cmd</code> → 打开剪映，本地草稿里点开微调</td></tr>
+<tr><th>坑</th><td>剪映开着时装，退出时它会覆盖草稿列表，新草稿消失。安装器会自动备份 <code>root_meta_info.json</code>。</td></tr>
+</table></div>
+
+<h2>批次清单（测试爆款结构）</h2>
+<div class="node"><table>
+<tr><th>工具</th><td><code>batch_list.py &lt;项目&gt;</code></td></tr>
+<tr><th>输出</th><td><code>批次清单.csv</code>：每条成片一行，爆款结构 / 对标链接 / 语言 / 时长 / 文案 / 成片路径，后面留空列：发布平台、链接、播放、完播率、点赞、评论、收藏、转发、结论。可整表导入飞书多维表，按结构对比数据。</td></tr>
+</table></div>
+
+<h2>换新品类/国家要改的</h2>
+<div class="node"><table>
+<tr><th>config</th><td><code>语言</code>、<code>名称</code>、<code>素材目录</code>、<code>音效目录</code>、<code>标签词表</code>（如服装：上身全身 / 面料特写 / 细节_领口 / 场景_通勤）、<code>排除标签</code></td></tr>
+<tr><th>文稿</th><td>新写，先对素材</td></tr>
+<tr><th>分镜</th><td>真人、AI 各一份，标签用新词表</td></tr>
+<tr><th>不用改</th><td>tools/ 全部、规则参数（除非品类节奏明显不同）</td></tr>
+</table></div>
+
+<div class="warn">已知局限：OCR 会把真实招牌字当字幕避开，裁切窗变小；画中画靠人工标；预览是 ffmpeg 模拟，字体动画以剪映为准；Windows 下 OpenCV 读写中文路径要用 imencode/imdecode；音效配乐商用前核对许可。</div>
+</div></body></html>

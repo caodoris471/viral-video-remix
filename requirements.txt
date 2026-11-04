@@ -1,0 +1,7 @@
+numpy
+opencv-python
+rapidocr_onnxruntime
+faster-whisper
+pyJianYingDraft==0.3.1
+edge-tts>=7.3.1
+playwright

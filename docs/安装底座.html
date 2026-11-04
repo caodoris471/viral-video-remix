@@ -1,0 +1,100 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>实拍混剪底座安装</title>
+<style>
+:root{--bg:#f7f4ee;--card:#fff;--ink:#2a2420;--mute:#7a6f66;--acc:#b5651d;--line:#e6ddd0;--rep:#c0392b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 "Microsoft YaHei",system-ui,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:32px 20px 80px}h1{font-size:28px;margin:0 0 6px}
+h2{font-size:19px;margin:30px 0 10px;border-left:4px solid var(--acc);padding-left:10px}.sub{color:var(--mute);margin:0 0 20px}
+.tabs{display:flex;gap:8px;margin:20px 0}.tabs button{flex:1;padding:14px;border:2px solid var(--line);background:var(--card);border-radius:10px;font:inherit;font-size:16px;cursor:pointer;color:var(--ink)}
+.tabs button[aria-selected=true]{border-color:var(--acc);color:var(--acc);font-weight:bold}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin:12px 0}
+ol li{margin:6px 0}code,pre{font-family:Consolas,monospace;font-size:13px}code{background:#f1ebe1;padding:1px 5px;border-radius:4px}
+.pre{position:relative}pre{background:#2a2420;color:#f3e9da;padding:12px 70px 12px 14px;border-radius:8px;overflow:auto;white-space:pre-wrap;margin:8px 0}
+.copy{position:absolute;top:8px;right:8px;background:var(--acc);color:#fff;border:0;border-radius:6px;padding:4px 10px;font:inherit;font-size:13px;cursor:pointer}
+table{border-collapse:collapse;width:100%;font-size:14px}
+td,th{border-top:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}th{background:#faf6ef}
+.tip{background:#eef6ef;border:1px solid #cfe5d3;border-radius:8px;padding:10px 14px;font-size:14px;margin:10px 0}
+.warn{background:#fff6e6;border:1px solid #f0d6a8;border-radius:8px;padding:10px 14px;font-size:14px;margin:10px 0}
+</style></head><body><div class="wrap">
+<h1>实拍混剪自动化：安装与配置</h1>
+<p class="sub">仓库：<code>github.com/caodoris471/real-footage-montage</code>　·　Windows 10/11　·　Codex / Claude Code 都能用。流程说明见 <code>docs/流程SOP.html</code>。</p>
+
+<div class="tabs" role="tablist">
+<button role="tab" aria-selected="true" aria-controls="lazy" id="t1">① 一键安装 · 懒人版</button>
+<button role="tab" aria-selected="false" aria-controls="step" id="t2">② 分步骤 · 详细版</button>
+</div>
+
+<section id="lazy" role="tabpanel" aria-labelledby="t1">
+<div class="card">
+<p><b>第 1 步</b>　打开 Codex 或 Claude Code，把下面这段话原样发给它：</p>
+<div class="pre"><pre id="p1">帮我安装这个 skill：https://github.com/caodoris471/real-footage-montage
+把它 git clone 到你的 skills 目录（Codex 是 ~/.codex/skills，Claude Code 是 ~/.claude/skills），文件夹名 real-footage-montage；然后运行里面的 一键安装.ps1，装完告诉我哪些通过、哪些要我手动处理。
+采集对标用的 skill 也一起装：https://github.com/caodoris471/blogger-video-pipeline</pre><button class="copy" data-for="p1">复制</button></div>
+<p><b>第 2 步</b>　装完后，开新对话，说一句：</p>
+<div class="pre"><pre id="p2">用 real-footage-montage 帮我做一批混剪</pre><button class="copy" data-for="p2">复制</button></div>
+<p>它会先问你：目标国家/语言、AI 音色、这批出几条（对应几个爆款结构）、品类和素材在哪。答完就自动往下跑。</p>
+</div>
+<div class="tip">AI 会自动处理：装 git / Python / ffmpeg（缺的话用 winget）、装依赖、装浏览器驱动、检查字体和剪映。你只需要在它提示时：装剪映专业版并打开一次；采集平台时扫码登录。</div>
+</section>
+
+<section id="step" role="tabpanel" aria-labelledby="t2" hidden>
+<h2>第 1 步 装 git、Python 3.10+、ffmpeg</h2>
+<div class="card">打开 PowerShell，逐行运行（已装的会提示已安装，跳过即可）：
+<div class="pre"><pre id="p3">winget install -e --id Git.Git
+winget install -e --id Python.Python.3.12
+winget install -e --id Gyan.FFmpeg</pre><button class="copy" data-for="p3">复制</button></div>
+装完<b>关掉 PowerShell 再开一个</b>，验证：<code>git --version</code>、<code>python --version</code>、<code>ffmpeg -version</code>。没有 winget（老版 Win10）：分别去 git-scm.com、python.org（安装时勾选 Add to PATH）、gyan.dev/ffmpeg/builds 下载。</div>
+
+<h2>第 2 步 下载 skill</h2>
+<div class="card">Codex 用户：
+<div class="pre"><pre id="p4">git clone https://github.com/caodoris471/real-footage-montage "$HOME\.codex\skills\real-footage-montage"</pre><button class="copy" data-for="p4">复制</button></div>
+Claude Code 用户把路径换成 <code>$HOME\.claude\skills\real-footage-montage</code>。国内连不上 GitHub：先开代理，或在 PowerShell 里 <code>$env:https_proxy="http://127.0.0.1:你的代理端口"</code>。以后更新：进这个文件夹运行 <code>git pull</code>。</div>
+
+<h2>第 3 步 运行安装脚本</h2>
+<div class="card"><div class="pre"><pre id="p5">cd "$HOME\.codex\skills\real-footage-montage"
+powershell -ExecutionPolicy Bypass -File .\一键安装.ps1</pre><button class="copy" data-for="p5">复制</button></div>
+它会走清华镜像装这些 Python 包：
+<table><tr><th>包</th><th>用在哪</th></tr>
+<tr><td>opencv-python, numpy</td><td>切点检测、裁切、运动量、亮度</td></tr>
+<tr><td>rapidocr_onnxruntime</td><td>识别烧录字幕，裁切时避开</td></tr>
+<tr><td>faster-whisper</td><td>口播逐字/逐词时间戳、爆款转写（本地；首次运行下载约 500MB 模型）</td></tr>
+<tr><td>pyJianYingDraft 0.3.1</td><td>生成剪映草稿</td></tr>
+<tr><td>edge-tts ≥7.3.1</td><td>免费 AI 配音，16 种语言（低于 7.3 会报 403）</td></tr>
+<tr><td>playwright</td><td>采集 skill 用的浏览器</td></tr></table></div>
+
+<h2>第 4 步 采集 skill（找对标、下原片）</h2>
+<div class="card"><div class="pre"><pre id="p6">git clone https://github.com/caodoris471/blogger-video-pipeline "$HOME\.codex\skills\blogger-video-pipeline"</pre><button class="copy" data-for="p6">复制</button></div>
+支持抖音、小红书、视频号、B站、快手、YouTube、TikTok、Instagram。各平台登录方法见它的 README。登录状态文件夹含你的账号凭证，<b>不要分享</b>。</div>
+
+<h2>第 5 步 剪映专业版和字体</h2>
+<div class="card">装剪映专业版后<b>打开一次</b>，生成草稿索引。草稿目录改过位置的，安装草稿时加 <code>--draft-root 你的草稿目录</code>。<br>
+中文花字预览用「汉仪雅酷黑 95W」（可选，右键字体 → 为当前用户安装）；用别的字体：<code>setx MIX_KWFONT "C:/Windows/Fonts/你的字体.ttf"</code>。外语自动用系统自带字体（Segoe UI Black / Yu Gothic / Malgun Gothic / Leelawadee）。剪映草稿用剪映自带字体，不受影响。</div>
+
+<h2>第 6 步 音效和配乐（可选）</h2>
+<div class="card">许可原因，仓库不带音效文件。自己从 mixkit.co 或 pixabay.com/sound-effects 下载，放进 <code>音效库\</code>，在项目 config 的 <code>音效</code>/<code>配乐</code> 写文件名。不放也能出片，配乐在剪映里加。</div>
+
+<h2>第 7 步 新建项目</h2>
+<div class="card"><div class="pre"><pre id="p7">xcopy /E /I projects\_模板 projects\北欧风服装店</pre><button class="copy" data-for="p7">复制</button></div>改 <code>config.json</code> 和分镜模板，替换项见下表。之后按 <code>docs/流程SOP.html</code> 走，或直接让 AI 带你跑。</div>
+</section>
+
+<h2>需要替换成你自己的信息</h2>
+<div class="card"><table>
+<tr><th>位置</th><th>字段</th><th>改成</th></tr>
+<tr><td rowspan="5">projects\&lt;项目&gt;\config.json</td><td>语言</td><td><code>zh</code> <code>en</code> <code>en-GB</code> <code>ja</code> <code>ko</code> <code>es</code> <code>pt</code> <code>fr</code> <code>de</code> <code>it</code> <code>ru</code> <code>id</code> <code>ms</code> <code>vi</code> <code>fil</code> <code>th</code></td></tr>
+<tr><td>名称</td><td>项目名</td></tr>
+<tr><td>素材目录</td><td>你的原片文件夹（用正斜杠，如 <code>D:/素材/北欧风</code>）</td></tr>
+<tr><td>音效目录</td><td>留空 = 用 skill 自带的 <code>音效库</code></td></tr>
+<tr><td>标签词表 / 排除标签</td><td>按品类改，如服装：上身全身、面料特写、细节_领口、场景_通勤</td></tr>
+<tr><td rowspan="3">分镜_S1_AI.json</td><td>爆款结构 / 对标链接</td><td>S1…Sn，和你文档里的「爆款结构1…n」对应；该结构来源视频的链接</td></tr>
+<tr><td>草稿名</td><td>如 <code>北欧风_S1_AI_V1</code></td></tr>
+<tr><td>口播 / 时间戳 / 段</td><td>voice_prep 的输出；标签用你的词表；关键词写口播原词</td></tr>
+<tr><td>环境变量（可选）</td><td>MIX_KWFONT</td><td>自定义花字字体路径</td></tr>
+</table></div>
+<div class="warn">音效配乐商用前核对许可。采集只做只读、低频抓取，遵守平台规则。</div>
+</div>
+<script>
+const tabs=[...document.querySelectorAll('[role=tab]')];
+tabs.forEach(t=>t.onclick=()=>tabs.forEach(x=>{const on=x===t;x.setAttribute('aria-selected',on);document.getElementById(x.getAttribute('aria-controls')).hidden=!on}));
+document.querySelectorAll('.copy').forEach(b=>b.onclick=()=>{navigator.clipboard.writeText(document.getElementById(b.dataset.for).innerText);b.textContent='已复制';setTimeout(()=>b.textContent='复制',1500)});
+</script>
+</body></html>

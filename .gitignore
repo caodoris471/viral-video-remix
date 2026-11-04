@@ -1,0 +1,10 @@
+__pycache__/
+音效库/*
+!音效库/README.md
+projects/*
+!projects/_模板/
+**/edge_profile*/
+*.mp4
+*.wav
+*.mp3
+*.m4a
