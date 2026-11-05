@@ -61,7 +61,7 @@
 
 ```
 帮我安装这个 skill：https://github.com/caodoris471/viral-video-remix
-把它 git clone 到你的 skills 目录（Codex 是 ~/.codex/skills，Claude Code 是 ~/.claude/skills），文件夹名 viral-video-remix；然后运行里面的 一键安装.ps1，装完告诉我哪些通过、哪些要我手动处理。
+把它 git clone 到你的 skills 目录（Codex 是 ~/.codex/skills，Claude Code 是 ~/.claude/skills），文件夹名 爆款视频混剪-viral-video-remix；然后运行里面的 一键安装.ps1，装完告诉我哪些通过、哪些要我手动处理。
 采集对标用的 skill 也一起装：https://github.com/caodoris471/blogger-video-pipeline
 ```
 
