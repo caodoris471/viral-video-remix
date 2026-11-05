@@ -76,12 +76,12 @@
 ### 方式二：手动安装
 
 ```powershell
-git clone https://github.com/caodoris471/viral-video-remix "$HOME\.codex\skills\viral-video-remix"
-cd "$HOME\.codex\skills\viral-video-remix"
+git clone https://github.com/caodoris471/viral-video-remix "$HOME\.codex\skills\爆款视频混剪-viral-video-remix"
+cd "$HOME\.codex\skills\爆款视频混剪-viral-video-remix"
 powershell -ExecutionPolicy Bypass -File .\一键安装.ps1
 ```
 
-Claude Code 用户把路径换成 `$HOME\.claude\skills\viral-video-remix`。国内连不上 GitHub 先开代理。分步骤图文说明见 [docs/安装底座.html](docs/安装底座.html)（下载后用浏览器打开）。
+Claude Code 用户把路径换成 `$HOME\.claude\skills\爆款视频混剪-viral-video-remix`。国内连不上 GitHub 先开代理。分步骤图文说明见 [docs/安装底座.html](docs/安装底座.html)（下载后用浏览器打开）。
 
 ## 📋 用到的软件和 Skill
 
