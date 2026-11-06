@@ -1,5 +1,6 @@
 numpy
 opencv-python
+Pillow
 rapidocr_onnxruntime
 faster-whisper
 pyJianYingDraft==0.3.1

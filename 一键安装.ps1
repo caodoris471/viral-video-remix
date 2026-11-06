@@ -38,5 +38,5 @@ Step "下载 Mixkit 免费音效和配乐"
 try { python "$here	ools\get_sfx.py" } catch { Write-Host "音效下载失败，稍后重跑 python tools\get_sfx.py" -ForegroundColor Yellow }
 
 Step "自检"
-python -c "import cv2, numpy, rapidocr_onnxruntime, faster_whisper, pyJianYingDraft, edge_tts; print('依赖全部可导入')"
+python -c "import cv2, numpy, PIL, rapidocr_onnxruntime, faster_whisper, pyJianYingDraft, edge_tts; print('依赖全部可导入')"
 Write-Host "`n安装完成。在 Codex / Claude Code 里说：用 viral-video-remix 帮我做一批混剪" -ForegroundColor Green

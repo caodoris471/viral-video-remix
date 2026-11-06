@@ -105,6 +105,28 @@ def run(args):
     subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", *map(str, args)], check=True)
 
 
+def product_overlay(edl, canvas_width, canvas_height):
+    corner = edl.get("产品角标")
+    if not corner:
+        return None
+    from PIL import Image
+
+    path = Path(corner["文件"])
+    with Image.open(path) as image:
+        if image.format != "PNG":
+            raise ValueError(f"产品角标需要 PNG: {path}")
+        low, high = image.convert("RGBA").getchannel("A").getextrema()
+        if low == 255 or high == 0:
+            raise ValueError(f"产品角标需要透明背景且商品可见: {path}")
+        iw, ih = image.size
+    w, right, bottom = (int(corner[k]) for k in ("宽", "右距", "底距"))
+    h = max(2, round(w * ih / iw / 2) * 2)
+    x, y = canvas_width - right - w, canvas_height - bottom - h
+    if w < 2 or min(x, y, right, bottom) < 0:
+        raise ValueError("产品角标超出画布")
+    return path, x, y, w, h
+
+
 def preview(edl, cfg, out):
     W, H, FPS = cfg["画布"]["宽"], cfg["画布"]["高"], cfg["画布"]["帧率"]
     TL = cfg["规则"]["转场时长"]
@@ -170,7 +192,17 @@ def preview(edl, cfg, out):
         elif tr == "模糊":
             h = TL[tr] / 2
             fx += [f"gblur=sigma=14:enable='between(t,{t - h},{t + h})'", f"gblur=sigma=22:enable='between(t,{t - h / 2},{t + h / 2})'"]
-    g += ";\n[base]" + (",".join(fx) if fx else "null")
+    g += ";\n[base]" + (",".join(fx) if fx else "null") + "[scene]"
+    base_label = "scene"
+    corner = product_overlay(edl, W, H)
+    if corner:
+        path, x, y, w, h = corner
+        inputs += ["-i", path]
+        g += (f";\n[{nxt}:v]scale={w}:{h}:flags=lanczos,format=rgba[product];\n"
+              f"[scene][product]overlay=x={x}:y={y}:eof_action=repeat:shortest=0[with_product]")
+        nxt += 1
+        base_label = "with_product"
+    g += f";\n[{base_label}]null"
     for c in edl["字幕"]:
         safe = c["文本"].replace("'", "’").replace(":", "：" if LANG in ("zh", "ja") else r"\:").replace("%", r"\%")
         g += (f",drawtext=fontfile='{FONT}':text='{safe}':fontsize=60:fontcolor=white:borderw=4:bordercolor=black@0.85:"
@@ -184,7 +216,8 @@ def preview(edl, cfg, out):
         size = f"max(1\\,{base}*(1+2.70158*pow({p}-1\\,3)+1.70158*pow({p}-1\\,2)))"
         x = "(w-text_w)/2" if k["槽"] is None else "w*0.22"
         y = f"h*{BIG_Y}-text_h/2" if k["槽"] is None else f"h*{LIST_Y[k['槽']]}-text_h/2"
-        g += (f",drawtext=fontfile='{FONT}':text='{k['文本'].replace("'", "’")}':fontsize='{size}':fontcolor=white:borderw=8:"
+        safe = k["文本"].replace("'", "’")
+        g += (f",drawtext=fontfile='{FONT}':text='{safe}':fontsize='{size}':fontcolor=white:borderw=8:"
               f"bordercolor=0xFFC81E:shadowx=0:shadowy=6:shadowcolor=black@0.7:x={x}:y={y}:enable='between(t,{k['起']},{k['止']})'")
     g += ",format=yuv420p[vout]"
     M = edl["配乐"]
@@ -270,6 +303,21 @@ def draft(edl, cfg, out):
         seg.add_keyframe(KP.position_x, 0, pan)
         seg.add_keyframe(KP.position_x, n, -pan)
         d.add_segment(seg, track="实拍画面")
+
+    corner = product_overlay(edl, W, H)
+    if corner:
+        path, x, y, w, h = corner
+        local_png = media / path.name
+        if path.resolve() != local_png.resolve():
+            shutil.copy2(path, local_png)
+        mat = j.VideoMaterial(str(local_png))
+        fit = min(W / mat.width, H / mat.height)
+        d.append_track(j.TrackSpec(j.TrackType.video, name="产品PNG角标"))
+        seg = j.VideoSegment(mat, j.Timerange(0, us(dur)),
+                             clip_settings=j.ClipSettings(
+                                 scale_x=w / (mat.width * fit), scale_y=h / (mat.height * fit),
+                                 transform_x=(2*x + w) / W - 1, transform_y=1 - (2*y + h) / H))
+        d.add_segment(seg, track="产品PNG角标")
 
     def place(kind, prefix, segs):
         ends = []

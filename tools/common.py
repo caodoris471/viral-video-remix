@@ -13,6 +13,23 @@ def save(p, data):
     Path(p).write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+PRODUCT_REVIEW_TAG = "产品入剪已复核"
+
+
+def tagged_pool(candidates, tags, cfg):
+    excluded = set(cfg["排除标签"])
+    required = {PRODUCT_REVIEW_TAG} if cfg.get("任务类型") == "产品类" else set()
+    pool = []
+    for candidate in candidates:
+        labels = tags.get(candidate["id"])
+        if not candidate.get("可用") or labels is None:
+            continue
+        label_set = set(labels)
+        if required <= label_set and not label_set & excluded:
+            pool.append(dict(candidate, 标签=labels))
+    return pool
+
+
 def lang_of(beats):
     return load(beats["时间戳"]).get("lang", "zh")
 

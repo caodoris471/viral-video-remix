@@ -3,15 +3,14 @@
 """
 from pathlib import Path
 import sys
-from common import load, sentences, beat_times
+from common import load, sentences, beat_times, tagged_pool
 
 proj = Path(sys.argv[1])
 cfg = load(proj / "config.json")
 beats = load(proj / sys.argv[2])
 cands = load(proj / "work/candidates.json")["窗"]
 tags = load(proj / "work/tags.json")
-excl = set(cfg["排除标签"])
-pool = [dict(c, 标签=tags[c["id"]]) for c in cands if c.get("可用") and c["id"] in tags and not (set(tags[c["id"]]) & excl)]
+pool = tagged_pool(cands, tags, cfg)
 ss = sentences(beats)
 for i, (b, (a, e)) in enumerate(zip(beats["段"], beat_times(beats, cfg))):
     if "用图" in b:

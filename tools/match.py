@@ -2,13 +2,13 @@
 
 硬规则：段长 >= 最短镜头秒；镜头窗必须含全部“必需”标签、不含“排除”标签、时长够；
 一个窗只用一次，同一原镜头拆出的相邻窗不给相邻段；静态窗（运动量 < 动态阈值）全片不超过上限。
-找不到合格窗：先去掉“优先”，再只保留第一个“必需”（记为降级）；仍没有则报缺镜头并停止。
+产品类只选已复核且完整匹配必需标签的窗；缺合格窗就报缺镜头。其他项目可按原流程降级匹配。
 
 用法: python match.py <项目目录> <分镜文件名>
 """
 from pathlib import Path
 import sys
-from common import load, save, sentences, beat_times, word_onset, lang_of
+from common import load, save, sentences, beat_times, word_onset, lang_of, tagged_pool
 import lang as L
 
 CUE_FOR_TRANSITION = {"闪白": "shutter", "模糊": "whoosh", "叠化": "chime"}
@@ -21,12 +21,7 @@ def main(proj, beats_name, preview=False):
     beats = load(proj / beats_name)
     cands = load(proj / "work/candidates.json")["窗"]
     tags = load(proj / "work/tags.json")
-    excl = set(cfg["排除标签"])
-    pool = []
-    for c in cands:
-        t = tags.get(c["id"])
-        if c.get("可用") and t is not None and not (set(t) & excl):
-            pool.append(dict(c, 标签=t))
+    pool = tagged_pool(cands, tags, cfg)
     # 同一原镜头拆出的窗归为一组（同源、首尾相接）
     pool.sort(key=lambda c: (c["源文件"], c["入"]))
     for i, c in enumerate(pool):
@@ -83,7 +78,9 @@ def main(proj, beats_name, preview=False):
         sys.exit(f"指定窗里静态镜头 {statics} 个，超过上限 {R['静态镜头上限']}")
     for i in [i for i in order if i not in picks]:
         b = beats["段"][i]
-        levels = [("完全匹配", b["必需"]), ("降级：只保留第一个必需", b["必需"][:1])]
+        levels = [("完全匹配", b["必需"])]
+        if cfg.get("任务类型") != "产品类":
+            levels.append(("降级：只保留第一个必需", b["必需"][:1]))
         chosen = None
         for label, need in levels:
             # 同一原镜头（连续拍的一条）全片只用一次：同一面墙拆出的两个窗不再先后出现
@@ -191,6 +188,10 @@ def main(proj, beats_name, preview=False):
     edl = dict(语言=code, 爆款结构=beats.get("爆款结构"), 对标链接=beats.get("对标链接"), 版本=beats["版本"], 草稿名=beats["草稿名"], 总时长=beats["总时长"], 口播=beats["口播"], 时间戳=beats["时间戳"],
                镜头=shots, 结尾图=image, 字幕=captions, 关键词=keywords, 音效=sorted(sfx, key=lambda s: s["时间"]),
                配乐=cfg["配乐"], 降级=notes, 缺镜头=missing, 预演=preview)
+    for key in ("目标时长秒", "时长容差秒", "产品角标"):
+        value = beats.get(key, cfg.get(key))
+        if value is not None:
+            edl[key] = value
     out = proj / "work" / f"EDL_{beats['版本']}.json"
     save(out, edl)
     for s in shots:

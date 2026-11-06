@@ -19,15 +19,17 @@ pre{background:#2a2420;color:#f3e9da;padding:12px 14px;border-radius:8px;overflo
 .rules td:first-child{width:36px;color:var(--acc);font-weight:bold}
 </style></head><body><div class="wrap">
 <h1>实拍素材 + 口播 混剪 SOP</h1>
-<p class="sub">目标：一批 20–40 秒 9:16 种草/带货短视频（每条对应一个爆款结构，方便测试哪种结构有效），真人口播或 16 种语言的 AI 口播，产出预览 MP4 + 剪映草稿 + 批次清单。换品类/换国家只改项目配置，工具不改。</p>
+<p class="sub">目标：按用户指定的每条时长制作 9:16 种草/带货视频（每条对应一个爆款结构，方便测试哪种结构有效），真人口播或 16 种语言的 AI 口播，产出预览 MP4 + 剪映草稿 + 批次清单。先问几分几秒，不默认限制为 20–40 秒。</p>
 
-<h2>开工前先定 4 件事</h2>
+<h2>开工前先定 5 件事</h2>
 <table class="rules">
 <tr><td>1</td><td><b>目标国家/语言</b>：zh / en / en-GB / ja / ko / es / pt / fr / de / it / ru / id / ms / vi / fil / th。决定配音、识别、字幕字体、按字还是按词切。</td></tr>
 <tr><td>2</td><td><b>配音方式</b>：AI 配音 / 真人配音 / 两版。AI 只选男声或女声，自动用该语言最热门的免费音色（中文男=云希，女=晓晓）。</td></tr>
 <tr><td>3</td><td><b>批次</b>：这批几条成片 = 几个爆款结构 S1…Sn，各自对应哪条对标视频。</td></tr>
-<tr><td>4</td><td><b>品类和素材</b>：品类名、原片在哪。</td></tr>
+<tr><td>4</td><td><b>每条成片时长</b>：想混剪成几分几秒，例如 0分30秒、1分00秒、2分30秒？是约这个长度，还是需要严格到点？区分每条与整批；同批不同长度按 S1…Sn 分别记。换算为秒，记录目标和容差。严格到点时将容差设为 0。</td></tr>
+<tr><td>5</td><td><b>任务类型和素材</b>。产品类开工前请用户发这款商品的透明背景 PNG，或商品实拍片段（文件或可访问链接），有两种可以一起发。核对 SKU、主推功效和用法，按需求确认角标位置和实拍可展示的动作。非产品类按装修风格、地点和场景选片。见 <a href="产品带货素材准入.md">产品带货素材准入</a>。</td></tr>
 </table>
+<p>当前会话已明确的参数直接沿用，只问缺失项。新建工程位置遵从用户的项目存放规则，大型素材、导出和缓存放在项目内，不放回 Skill 目录。</p>
 
 <div class="flow">
 <a href="#n0">0 采集对标</a><span>→</span><a href="#n1">1 爆款拆解</a><span>→</span><a href="#n2">2 扫素材+打标签</a><span>→</span><a href="#n3">3 写文案(对素材)</a><span>→</span><a href="#n4">4 口播</a><span>→</span><a href="#n5">5 分镜</a><span>→</span><a href="#n6">6 配镜头</a><span>→</span><a href="#n7">7 出片</a><span>→</span><a href="#n8">8 自检</a><span>→</span><a href="#n9">9 装进剪映</a>
@@ -46,27 +48,28 @@ pre{background:#2a2420;color:#f3e9da;padding:12px 14px;border-radius:8px;overflo
 
 <div class="node" id="n0"><h3><b>0</b>采集对标 + 下载原片</h3><table>
 <tr><th>工具</th><td>skill <b>blogger-video-pipeline</b>（github.com/caodoris471/blogger-video-pipeline）：抖音 / 小红书 / 视频号 / B站 / 快手 / YouTube / TikTok / Instagram 都能抓，带互动数据筛选和下载</td></tr>
-<tr><th>输入</th><td>目标平台 + 品类关键词或博主（如「北欧风服装店探店」）</td></tr>
-<tr><th>输出</th><td>候选清单、互动数据排名、原片 mp4（放进 config 的素材目录）</td></tr>
+<tr><th>TikTok 原片</th><td>默认在用户指定浏览器使用 <a href="https://tiksave.io/zh-cn">TikSave</a> 下载无水印候选；用 <code>tools/tiktok_assets.py</code> 建队列、登记真实下载文件、生成检查帧并记录人工复核。核对移动的 TikTok 标志与 @账号、实际入剪区间，通过后才入剪。不静默回退带水印的 download 档位。无水印下载不代表已去除原作者烧录字幕。详见 <a href="TikTok无水印下载-TikSave.md">TikSave 接入与失败处理</a>。</td></tr>
+<tr><th>输入</th><td>产品类用形态、功效、部位和用法组合搜索。非产品类用主题关键词或博主（如「北欧风服装店探店」）。</td></tr>
+<tr><th>输出</th><td>候选清单、互动数据排名、候选原片 MP4（产品类只将通过准入的裁片放进 config 的素材目录）；固定素材编号 → 平台原视频ID（文本）→ 原链接 → 本地文件名的映射。排序、补采不改已引用的编号。</td></tr>
 <tr><th>要点</th><td>只读不互动。每次 ≤3 个关键词、每词滚 2 次、词间隔 30–45 秒，单条间隔 25–40 秒；遇到 502/空数据/验证码立即停。<br>优先探店实拍、长镜头、字幕少的；别人剪好的快切合集基本没用。</td></tr>
 </table></div>
 
 <div class="node" id="n1"><h3><b>1</b>爆款拆解</h3><table>
 <tr><th>工具</th><td><code>transcribe.py</code>（本地 faster-whisper 逐句转写）、<code>ref_compare.py</code>（量切点节奏）</td></tr>
-<tr><th>输出</th><td>每条爆款一个结构编号 <b>S1…Sn</b>（和飞书文档「爆款结构1…n」对应，记下对标链接）：钩子 / 要点数 / 每段秒数 / 语速 / 结尾引导；剪辑节奏指标</td></tr>
-<tr><th>要点</th><td>一批几条成片就拆几条爆款，一条成片只用一个结构，后面才能比较哪个结构好。外语对标加 <code>--lang=en</code> 等。只借结构，不抄文字。</td></tr>
+<tr><th>输出</th><td>每条爆款一个结构编号 <b>S1…Sn</b>，记下主对标固定素材编号与原链接：钩子 / 要点数 / 原片各段时间与功能 / 语速 / 结尾引导；按目标时长分配新片各段，建立原片功能 → 新文案 → 成片画面的逐段对照。</td></tr>
+<tr><th>要点</th><td>一批几条成片就拆几条爆款，一条成片只用一个结构，后面才能比较哪个结构好。外语对标加 <code>--lang=en</code> 等。只借结构，不抄文字。主结构对标和补充画面来源分开标；开头强化、压缩、重排都如实说明。</td></tr>
 </table></div>
 
 <div class="node" id="n2"><h3><b>2</b>扫素材 + 打标签</h3><table>
-<tr><th>工具</th><td><code>scan.py</code>（切点、OCR 避字幕自动 9:16 裁切、宽裁切、运动量、联系表）→ <code>summary.py</code> → 人或 AI 看 <code>work/sheets/*.png</code> 打标签（<code>tag_sheet.py</code> 辅助）</td></tr>
+<tr><th>工具</th><td>先判断软字幕/烧录字幕；可移除的软字幕去掉相应轨道，烧录字幕先检查可用的视频字幕擦除插件/工具并验证结果，再对选定的原片或清理片运行 <code>scan.py</code>（切点、OCR检测、裁切建议、运动量、联系表）→ <code>summary.py</code> → 人或 AI 看 <code>work/sheets/*.png</code> 打标签（<code>tag_sheet.py</code> 辅助）。</td></tr>
 <tr><th>输出</th><td><code>work/candidates.json</code>、<code>work/tags.json</code>（如 <code>{"A03":["全景_餐厅","暖光"]}</code>）、<code>work/file_ids.json</code>（素材固定编号）</td></tr>
-<tr><th>要点</th><td>只标裁切后清楚看得见的。口播人像、效果图、画中画、后期标注要标出来，匹配时自动排除。重扫后窗号变了用 <code>remap_tags.py</code> 搬标签。4K 素材先缩到 1080p 再入库，否则可能爆内存。</td></tr>
+<tr><th>要点</th><td>RapidOCR只识别文字，<code>scan.py</code>只算避字裁切窗；本包未内置视频字幕修复插件，不能声称OCR就是去字。没有擦除工具时说明能力缺口，优先无字素材或不损伤主体的轻裁切。清理后逐镜检查残字、闪烁、主体变形，只标最终处理后清楚可见的内容；不得默认大幅裁切再模糊补边。口播人像、效果图、画中画、后期标注要标出来。重扫窗号变了用 <code>remap_tags.py</code> 搬标签；固定素材编号不变。4K 素材先缩到 1080p 再入库。</td></tr>
 </table></div>
 
 <div class="node" id="n3"><h3><b>3</b>写文案（先对素材）</h3><table>
 <tr><th>工具</th><td>LLM 写稿 + <code>overlap_check.py</code>（和参考稿 4 字重合率 &gt;30% 或连续相同 ≥12 字 → 改写）</td></tr>
 <tr><th>输出</th><td>每个结构一份 <code>inputs/文稿_S1.txt</code>…，一句一行</td></tr>
-<tr><th>要点</th><td>每句先写「画面必须有什么」，对照 tags.json：每类至少 2 个 ≥4 秒可用窗。不够就补素材或改句子。<b>素材够了再录音</b>，录完就改不了。口语化，别写成文言文。</td></tr>
+<tr><th>要点</th><td>按目标时长控制文案信息量；每句先写「画面必须有什么」，对照 tags.json：每类至少 2 个 ≥4 秒可用窗。不够就补素材或改句子。<b>素材够了再录音</b>；配音后核对实际时长，偏差过大先改内容和停顿，不循环镜头或大幅变速凑长度。口语化，别写成文言文。</td></tr>
 </table></div>
 
 <div class="node" id="n4"><h3><b>4</b>口播：真人版 / AI 版</h3><table>
@@ -91,13 +94,13 @@ pre{background:#2a2420;color:#f3e9da;padding:12px 14px;border-radius:8px;overflo
 <div class="node" id="n7"><h3><b>7</b>出片</h3><table>
 <tr><th>工具</th><td><code>render.py &lt;项目&gt; EDL.json</code>（ffmpeg 预览 + pyJianYingDraft 剪映草稿）</td></tr>
 <tr><th>输出</th><td><code>output/&lt;版本&gt;/</code>：<code>*_预览.mp4</code>、<code>*_预览_VSCode可播.mp4</code>、<code>剪映草稿/</code>、<code>素材/</code>、<code>安装到剪映.cmd</code></td></tr>
-<tr><th>画面</th><td>1080×1920，上下用同画面模糊填充；大字 5 种样式随机（花字/砸字/宋体/重点/竖排），开头固定花字（黄字深棕描边，汉仪雅酷黑 95W），逐字弹跳；草稿里用剪映原生字体和动画（波浪弹入/放大震动等），可直接改</td></tr>
+<tr><th>画面</th><td>1080×1920，优先保留主体完整与原构图；上下同画面模糊填充是可选排版，不是默认要求。<code>render.py</code>在镜头含「宽裁切」时会启用模糊背景，入EDL前逐镜决定是否使用。大字 5 种样式随机（花字/砸字/宋体/重点/竖排），开头固定花字（黄字深棕描边，汉仪雅酷黑 95W），逐字弹跳；草稿里用剪映原生字体和动画。需要商品角标时填「产品角标」，MP4 全程叠加透明 PNG，剪映里可独立编辑。</td></tr>
 <tr><th>声音</th><td>口播 + 配乐 -14dB（人声时压低 6dB）+ 少量音效（pop/whoosh/wood/chime/shutter，安装时 <code>get_sfx.py</code> 自动从 Mixkit 官网下载，免费可商用）</td></tr>
 </table></div>
 
 <div class="node" id="n8"><h3><b>8</b>自检</h3><table>
 <tr><th>工具</th><td><code>qa.py &lt;项目&gt; &lt;版本&gt;</code>、<code>ref_compare.py</code>（和对标比节奏）、<code>shot_stats.py</code>（查相邻镜头亮度/色温跳变）</td></tr>
-<tr><th>检查</th><td>镜头时长、切点位置、必需标签、窗重复、越界、总时长帧数；生成 <code>检查_逐段对照.png</code>。全部通过 + 对照图逐格看过，才交给人审。</td></tr>
+<tr><th>检查</th><td>镜头时长、切点位置、必需标签、窗重复、越界、总时长帧数；生成 <code>检查_逐段对照.png</code>。另对照用户目标与容差核对实测时长，检查结构映射、残留原字幕和主体完整性。<code>qa.py</code>检查成片与 EDL 时长一致，并核对已填写的目标和容差，允许一帧的编码误差。产品类逐镜复看他品露出、功效归因和商品角标。全部通过后才交给人审。</td></tr>
 </table></div>
 
 <div class="node" id="n9"><h3><b>9</b>装进剪映</h3><table>
@@ -111,13 +114,16 @@ pre{background:#2a2420;color:#f3e9da;padding:12px 14px;border-radius:8px;overflo
 <tr><th>输出</th><td><code>批次清单.csv</code>：每条成片一行，爆款结构 / 对标链接 / 语言 / 时长 / 文案 / 成片路径，后面留空列：发布平台、链接、播放、完播率、点赞、评论、收藏、转发、结论。可整表导入飞书多维表，按结构对比数据。</td></tr>
 </table></div>
 
+<h2>飞书编号、标签与来源关联</h2>
+<div class="node"><p>使用固定素材编号（如 <code>TC-20261105-021</code>），不用排序后的行号。素材库「引用标签」多选标明 <code>S1｜主结构对标</code>、<code>S1｜脏污开场</code>等；成片表「主结构对标」「画面来源」关联原片记录。原片ID按文本保存，对应本地文件名。</p><p>「参考视频与节奏说明」写原片结构各段与新片的对应；「分镜与素材编号」写成片起止 → 固定素材编号 → 原片起止 → 用途。保留其他成片已有标签，写完回读验收。完整字段与示例见 <a href="飞书编号与引用对齐.md">飞书编号与引用对齐</a>。</p></div>
+
 <h2>换新品类/国家要改的</h2>
 <div class="node"><table>
-<tr><th>config</th><td><code>语言</code>、<code>名称</code>、<code>素材目录</code>、<code>音效目录</code>、<code>标签词表</code>（如服装：上身全身 / 面料特写 / 细节_领口 / 场景_通勤）、<code>排除标签</code></td></tr>
+<tr><th>config</th><td><code>语言</code>、<code>名称</code>、<code>目标时长秒</code>、<code>时长容差秒</code>、<code>素材目录</code>、<code>音效目录</code>、<code>标签词表</code>（如服装：上身全身 / 面料特写 / 细节_领口 / 场景_通勤）、<code>排除标签</code></td></tr>
 <tr><th>文稿</th><td>新写，先对素材</td></tr>
 <tr><th>分镜</th><td>真人、AI 各一份，标签用新词表</td></tr>
 <tr><th>不用改</th><td>tools/ 全部、规则参数（除非品类节奏明显不同）</td></tr>
 </table></div>
 
-<div class="warn">已知局限：OCR 会把真实招牌字当字幕避开，裁切窗变小；画中画靠人工标；预览是 ffmpeg 模拟，字体动画以剪映为准；Windows 下 OpenCV 读写中文路径要用 imencode/imdecode；音效配乐商用前核对许可。</div>
+<div class="warn">已知局限：本包没有内置烧录字幕擦除能力，OCR可能把真实招牌字也当字幕，裁切建议需人工审核；字幕擦除插件需另行确认可用性与结果；画中画靠人工标；预览是 ffmpeg 模拟，字体动画以剪映为准；Windows 下 OpenCV 读写中文路径要用 imencode/imdecode；音效配乐商用前核对许可。</div>
 </div></body></html>

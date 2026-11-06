@@ -6,12 +6,12 @@
   3 镜头窗标签包含该段全部“必需”标签（画面里有台词说的东西）
   4 同一镜头窗不重复使用；静态镜头不超过上限
   5 取用的源片段没有越过镜头窗终点（不会闪进下一个镜头）
-  6 成片时长、帧数与 EDL 一致
+  6 成片时长、帧数与 EDL 一致，并核对已填写的目标时长和容差
 用法: python qa.py <项目目录> <版本名，如 真人版>
 """
 from pathlib import Path
-import json, subprocess, sys
-from common import load
+import json, math, subprocess, sys
+from common import load, PRODUCT_REVIEW_TAG
 import lang as L
 
 FONT = "C\\:/Windows/Fonts/msyhbd.ttc"
@@ -40,12 +40,16 @@ def main(proj, version):
         d = s["止"] - s["起"]
         if d < R["最短镜头秒"] - 1e-6:
             fails.append(f"段{s['段']} 时长 {d:.2f}s < {R['最短镜头秒']}s")
-        miss = set(s["必需"]) - set(s["标签"])
+        labels = set(s["标签"])
+        if cfg.get("任务类型") == "产品类" and PRODUCT_REVIEW_TAG not in labels:
+            fails.append(f"段{s['段']} 缺产品入剪复核")
+        miss = set(s["必需"]) - labels
         if miss:
             fails.append(f"段{s['段']} 画面缺 {sorted(miss)}（降级匹配，需人工确认）")
         if s["源入点"] + d > s["窗出"] + 1e-3:
             fails.append(f"段{s['段']} 取到镜头窗以外 {s['源入点'] + d - s['窗出']:.2f}s")
-    cuts = [s["止"] for s in shots]
+    cut_shots = shots if edl.get("结尾图") else shots[:-1]
+    cuts = [s["止"] for s in cut_shots]
     for t in cuts:
         if not any(0 <= st - t <= 0.15 for st in starts):
             fails.append(f"切点 {t:.2f}s 不在句子开头前，可能切在句中")
@@ -60,6 +64,17 @@ def main(proj, version):
     frames, dur = int(probe["streams"][0]["nb_read_frames"]), float(probe["format"]["duration"])
     if abs(dur - edl["总时长"]) > 0.05 or abs(frames - round(edl["总时长"] * FPS)) > 1:
         fails.append(f"成片 {dur:.2f}s/{frames}帧，应为 {edl['总时长']}s/{round(edl['总时长'] * FPS)}帧")
+
+    target = edl.get("目标时长秒", cfg.get("目标时长秒"))
+    if target is not None:
+        tolerance = edl.get("时长容差秒", cfg.get("时长容差秒"))
+        tolerance = 0 if tolerance is None else tolerance
+        if not isinstance(target, (int, float)) or not math.isfinite(target) or target <= 0:
+            fails.append("目标时长秒必须填写正数")
+        elif not isinstance(tolerance, (int, float)) or not math.isfinite(tolerance) or tolerance < 0:
+            fails.append("时长容差秒必须填写非负数")
+        elif abs(dur - target) > tolerance + 1 / FPS:
+            fails.append(f"成片实测 {dur:.2f}s，目标 {target:g}s ±{tolerance:g}s，超出容差")
 
     # 逐段对照图：段中点画面 + 段号/时长/必需/实际标签 + 该段字幕
     tiles = []
@@ -98,7 +113,8 @@ def main(proj, version):
     print("降级:", edl.get("降级") or "无")
     print("检查:", "全部通过" if not fails else "\n  - " + "\n  - ".join(fails))
     print("对照图:", sheet)
+    return not fails
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    sys.exit(0 if main(sys.argv[1], sys.argv[2]) else 1)
