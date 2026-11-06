@@ -190,7 +190,7 @@ def main(proj, beats_name, preview=False):
                配乐=cfg["配乐"], 降级=notes, 缺镜头=missing, 预演=preview)
     for key in ("目标时长秒", "时长容差秒", "产品角标"):
         value = beats.get(key, cfg.get(key))
-        if value is not None:
+        if value is not None or key in beats:
             edl[key] = value
     out = proj / "work" / f"EDL_{beats['版本']}.json"
     save(out, edl)

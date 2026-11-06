@@ -6,7 +6,7 @@
   3 镜头窗标签包含该段全部“必需”标签（画面里有台词说的东西）
   4 同一镜头窗不重复使用；静态镜头不超过上限
   5 取用的源片段没有越过镜头窗终点（不会闪进下一个镜头）
-  6 成片时长、帧数与 EDL 一致，并核对已填写的目标时长和容差
+  6 成片时长、帧数与 EDL 一致。约定时长给提示，明确容差才作为验收条件
 用法: python qa.py <项目目录> <版本名，如 真人版>
 """
 from pathlib import Path
@@ -68,9 +68,11 @@ def main(proj, version):
     target = edl.get("目标时长秒", cfg.get("目标时长秒"))
     if target is not None:
         tolerance = edl.get("时长容差秒", cfg.get("时长容差秒"))
-        tolerance = 0 if tolerance is None else tolerance
         if not isinstance(target, (int, float)) or not math.isfinite(target) or target <= 0:
             fails.append("目标时长秒必须填写正数")
+        elif tolerance is None:
+            if abs(dur - target) > target * 0.10:
+                print(f"时长提醒：成片实测 {dur:.2f}s，参考目标约 {target:g}s，建议复看内容和节奏")
         elif not isinstance(tolerance, (int, float)) or not math.isfinite(tolerance) or tolerance < 0:
             fails.append("时长容差秒必须填写非负数")
         elif abs(dur - target) > tolerance + 1 / FPS:

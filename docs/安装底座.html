@@ -32,7 +32,7 @@ td,th{border-top:1px solid var(--line);padding:7px 8px;text-align:left;vertical-
 采集对标用的 skill 也一起装：https://github.com/caodoris471/blogger-video-pipeline</pre><button class="copy" data-for="p1">复制</button></div>
 <p><b>第 2 步</b>　装完后，开新对话，说一句：</p>
 <div class="pre"><pre id="p2">用 viral-video-remix 帮我做一批混剪</pre><button class="copy" data-for="p2">复制</button></div>
-<p>它会先问你：目标国家/语言、AI 配音还是真人配音（AI 只问男声/女声）、这批出几条（对应几个爆款结构）、<b>每条想混剪成几分几秒</b>（约这个长度还是严格到点）、品类和素材在哪。已有答案直接沿用；每条时长和整批总时长分开记录，答完再往下跑。</p>
+<p>它会先问你：目标国家/语言、AI 配音还是真人配音（AI 只问男声/女声）、这批出几条（对应几个爆款结构）、<b>每条大概想混剪成多长</b>（如一分钟上下）、品类和素材在哪。已有答案直接沿用；每条时长和整批总时长分开记录，答完再往下跑。</p>
 </div>
 <div class="tip">AI 会自动处理：装 git / Python / ffmpeg（缺的话用 winget）、装依赖、装浏览器驱动、下载 Mixkit 音效配乐、检查字体和剪映。你只需要在它提示时：装剪映专业版并打开一次；采集平台时扫码登录。</div>
 </section>
@@ -84,7 +84,7 @@ powershell -ExecutionPolicy Bypass -File .\一键安装.ps1</pre><button class="
 <tr><td rowspan="7">projects\&lt;项目&gt;\config.json</td><td>语言</td><td><code>zh</code> <code>en</code> <code>en-GB</code> <code>ja</code> <code>ko</code> <code>es</code> <code>pt</code> <code>fr</code> <code>de</code> <code>it</code> <code>ru</code> <code>id</code> <code>ms</code> <code>vi</code> <code>fil</code> <code>th</code></td></tr>
 <tr><td>名称</td><td>项目名</td></tr>
 <tr><td>目标时长秒</td><td>每条视频几分几秒换算成秒；模板留空，按用户答案填写，同批不同时长按S1…Sn另记。</td></tr>
-<tr><td>时长容差秒</td><td>用户接受的时长偏差，严格到点填0；执行者对照媒体实测值人工验收，当前qa.py不自动读取目标。</td></tr>
+<tr><td>时长容差秒</td><td>约定时长默认留空，偏离较多时自检会提醒。用户给了明确范围时填写，严格到点填 0。</td></tr>
 <tr><td>素材目录</td><td>你的原片文件夹（用正斜杠，如 <code>D:/素材/北欧风</code>）</td></tr>
 <tr><td>音效目录</td><td>留空 = 用 skill 自带的 <code>音效库</code></td></tr>
 <tr><td>标签词表 / 排除标签</td><td>按品类改，如服装：上身全身、面料特写、细节_领口、场景_通勤</td></tr>
