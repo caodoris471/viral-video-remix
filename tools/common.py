@@ -16,6 +16,20 @@ def save(p, data):
 PRODUCT_REVIEW_TAG = "产品入剪已复核"
 
 
+def full_motion(cfg, edl=None):
+    return (edl or {}).get("画面模式", cfg.get("画面模式", "自动")) == "全动态"
+
+
+def static_shot(shot, cfg):
+    motion = shot.get("运动量")
+    return (shot.get("推近", 1.0) != 1.0
+            or shot.get("原片静帧秒") is not None
+            or bool(shot.get("still") or shot.get("静帧"))
+            or motion in ("静帧", "静态")
+            or (isinstance(motion, (int, float)) and motion < cfg["规则"]["动态阈值"])
+            or Path(shot.get("源文件", "")).suffix.lower() in {".png", ".jpg", ".jpeg", ".webp", ".bmp"})
+
+
 def tagged_pool(candidates, tags, cfg):
     excluded = set(cfg["排除标签"])
     required = {PRODUCT_REVIEW_TAG} if cfg.get("任务类型") == "产品类" else set()

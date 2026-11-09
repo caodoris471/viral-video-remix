@@ -11,7 +11,8 @@
 """
 from pathlib import Path
 import json, math, subprocess, sys
-from common import load, PRODUCT_REVIEW_TAG
+from common import load, PRODUCT_REVIEW_TAG, full_motion, static_shot
+from caption_layout import width as caption_width, safe_width
 import lang as L
 
 FONT = "C\\:/Windows/Fonts/msyhbd.ttc"
@@ -56,9 +57,16 @@ def main(proj, version):
     ids = [s["窗"] for s in shots if not s.get("占位")]
     if len(ids) != len(set(ids)):
         fails.append(f"镜头窗重复使用：{ids}")
-    statics = sum(s.get("推近", 1.0) != 1.0 for s in shots)
-    if statics > R["静态镜头上限"]:
-        fails.append(f"静态镜头 {statics} 个 > 上限 {R['静态镜头上限']}")
+    statics = sum(static_shot(s, cfg) for s in shots if not s.get("占位"))
+    static_limit = 0 if full_motion(cfg, edl) else R["静态镜头上限"]
+    if statics > static_limit:
+        fails.append(f"静态镜头 {statics} 个 > 上限 {static_limit}")
+    if full_motion(cfg, edl) and edl.get("结尾图"):
+        fails.append("全动态模式含整屏结尾图")
+    for i, c in enumerate(edl["字幕"], 1):
+        measured = caption_width(c, edl.get("语言", "zh"))
+        if measured > safe_width(cfg) + 1:
+            fails.append(f"字幕{i} 宽 {measured:.0f}px > 安全宽度 {safe_width(cfg):.0f}px，请按词分屏")
     probe = json.loads(subprocess.check_output(["ffprobe", "-v", "error", "-select_streams", "v:0", "-count_frames",
                                                 "-show_entries", "stream=nb_read_frames:format=duration", "-of", "json", str(mp4)]))
     frames, dur = int(probe["streams"][0]["nb_read_frames"]), float(probe["format"]["duration"])

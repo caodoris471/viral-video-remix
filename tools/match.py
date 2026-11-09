@@ -8,7 +8,8 @@
 """
 from pathlib import Path
 import sys
-from common import load, save, sentences, beat_times, word_onset, lang_of, tagged_pool
+from common import load, save, sentences, beat_times, word_onset, lang_of, tagged_pool, full_motion
+from caption_layout import fit_captions
 import lang as L
 
 CUE_FOR_TRANSITION = {"闪白": "shutter", "模糊": "whoosh", "叠化": "chime"}
@@ -19,6 +20,10 @@ def main(proj, beats_name, preview=False):
     proj = Path(proj)
     cfg, R = load(proj / "config.json"), load(proj / "config.json")["规则"]
     beats = load(proj / beats_name)
+    if full_motion(cfg, beats):
+        R = dict(R, 静态镜头上限=0)
+        if any("用图" in b for b in beats["段"]):
+            sys.exit("全动态模式不能使用整屏图片；产品PNG请放在独立角标轨")
     cands = load(proj / "work/candidates.json")["窗"]
     tags = load(proj / "work/tags.json")
     pool = tagged_pool(cands, tags, cfg)
@@ -185,10 +190,11 @@ def main(proj, beats_name, preview=False):
             a0 = w[kk]["start"] if kk < len(w) else s["start"]
             e0 = w[merged[j + 1][0]]["start"] if j + 1 < len(merged) else s["end"]
             captions.append(dict(文本=text, 起=round(a0, 3), 止=round(e0, 3)))
+    captions = fit_captions(captions, load(beats["时间戳"]), code, cfg)
     edl = dict(语言=code, 爆款结构=beats.get("爆款结构"), 对标链接=beats.get("对标链接"), 版本=beats["版本"], 草稿名=beats["草稿名"], 总时长=beats["总时长"], 口播=beats["口播"], 时间戳=beats["时间戳"],
                镜头=shots, 结尾图=image, 字幕=captions, 关键词=keywords, 音效=sorted(sfx, key=lambda s: s["时间"]),
                配乐=cfg["配乐"], 降级=notes, 缺镜头=missing, 预演=preview)
-    for key in ("目标时长秒", "时长容差秒", "产品角标"):
+    for key in ("目标时长秒", "时长容差秒", "产品角标", "画面模式", "主结构对标", "结构主题", "结构改编"):
         value = beats.get(key, cfg.get(key))
         if value is not None or key in beats:
             edl[key] = value

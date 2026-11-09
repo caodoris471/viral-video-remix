@@ -25,11 +25,12 @@ pre{background:#2a2420;color:#f3e9da;padding:12px 14px;border-radius:8px;overflo
 <table class="rules">
 <tr><td>1</td><td><b>目标国家/语言</b>：zh / en / en-GB / ja / ko / es / pt / fr / de / it / ru / id / ms / vi / fil / th。决定配音、识别、字幕字体、按字还是按词切。</td></tr>
 <tr><td>2</td><td><b>配音方式</b>：AI 配音 / 真人配音 / 两版。AI 只选男声或女声，自动用该语言最热门的免费音色（中文男=云希，女=晓晓）。</td></tr>
-<tr><td>3</td><td><b>批次</b>：这批几条成片 = 几个爆款结构 S1…Sn，各自对应哪条对标视频。</td></tr>
+<tr><td>3</td><td><b>批次与来源</b>：这批几条，来源是账号主页、关键词还是指定视频/本地素材，指标和门槛是什么。每条有独立脚本与S编号；原参考数和成片数分开记录，复用原参考的改编标为变体。</td></tr>
 <tr><td>4</td><td><b>每条成片时长</b>。先问每条大概多长。说 1 分钟就按 60 秒上下做，内容完整、节奏自然即可。同批不同长度按 S1…Sn 分别记。用户给了明确范围才填容差，严格到点填 0。</td></tr>
-<tr><td>5</td><td><b>任务类型和素材</b>。产品类开工前请用户发这款商品的透明背景 PNG，或商品实拍片段（文件或可访问链接），有两种可以一起发。核对 SKU、主推功效和用法，按需求确认角标位置和实拍可展示的动作。非产品类按装修风格、地点和场景选片。见 <a href="产品带货素材准入.md">产品带货素材准入</a>。</td></tr>
+<tr><td>5</td><td><b>任务类型和素材</b>。产品类接收清晰商品图/透明PNG或自家实拍。白底图可先识别再抠图，缺少功效、用法时只补问缺项；用户已授权用采集场景、不提供自家演示时不重复追问，也不声称画面是自家实测。非产品类按主题选片。见 <a href="产品带货素材准入.md">产品带货素材准入</a>。</td></tr>
 </table>
 <p>当前会话已明确的参数直接沿用，只问缺失项。新建工程位置遵从用户的项目存放规则，大型素材、导出和缓存放在项目内，不放回 Skill 目录。</p>
+<p><b>账号主页 + 产品图即可启动资料整理与参考采集</b>，不要求再给搜索关键词。采集入口与产品/非产品类型独立选择：指定账号只读该账号；关键词可跨账号；指定视频可直接登记。指标严格区分播放/点赞及 &gt; / ≥，记录证据和实际翻页范围。见 <a href="采集入口与批量续作.md">采集入口与批量续作</a>。</p>
 
 <div class="flow">
 <a href="#n0">0 采集对标</a><span>→</span><a href="#n1">1 爆款拆解</a><span>→</span><a href="#n2">2 扫素材+打标签</a><span>→</span><a href="#n3">3 写文案(对素材)</a><span>→</span><a href="#n4">4 口播</a><span>→</span><a href="#n5">5 分镜</a><span>→</span><a href="#n6">6 配镜头</a><span>→</span><a href="#n7">7 出片</a><span>→</span><a href="#n8">8 自检</a><span>→</span><a href="#n9">9 装进剪映</a>
@@ -41,7 +42,7 @@ pre{background:#2a2420;color:#f3e9da;padding:12px 14px;border-radius:8px;overflo
 <tr><td>2</td><td>只在句间或句内逗号停顿处切，开口前 2 帧。不在词中间切。</td></tr>
 <tr><td>3</td><td>每段先写「画面必须有什么」，裁切后画面里真的有，才能配。</td></tr>
 <tr><td>4</td><td>没有合格镜头就报缺镜头、停下补素材，不拿无关镜头凑。同一原镜头只用一次。</td></tr>
-<tr><td>5</td><td>优先动态镜头，静态最多 5 个且加 12% 推近。转场全片 ≤3 个，速度一律 1.0。</td></tr>
+<tr><td>5</td><td>优先动态镜头。用户要求全动态时配置<code>画面模式: 全动态</code>，静态主画面上限为0，不用定格、整屏商品图或循环补时长；固定产品角标仍单独成轨。自动模式按配置的静态名额执行，转场全片≤3个。</td></tr>
 </table>
 
 <h2>节点详情</h2>
@@ -49,7 +50,7 @@ pre{background:#2a2420;color:#f3e9da;padding:12px 14px;border-radius:8px;overflo
 <div class="node" id="n0"><h3><b>0</b>采集对标 + 下载原片</h3><table>
 <tr><th>工具</th><td>skill <b>blogger-video-pipeline</b>（github.com/caodoris471/blogger-video-pipeline）：抖音 / 小红书 / 视频号 / B站 / 快手 / YouTube / TikTok / Instagram 都能抓，带互动数据筛选和下载</td></tr>
 <tr><th>TikTok 原片</th><td>默认在用户指定浏览器使用 <a href="https://tiksave.io/zh-cn">TikSave</a> 下载无水印候选；用 <code>tools/tiktok_assets.py</code> 建队列、登记真实下载文件、生成检查帧并记录人工复核。核对移动的 TikTok 标志与 @账号、实际入剪区间，通过后才入剪。不静默回退带水印的 download 档位。无水印下载不代表已去除原作者烧录字幕。详见 <a href="TikTok无水印下载-TikSave.md">TikSave 接入与失败处理</a>。</td></tr>
-<tr><th>输入</th><td>产品类用形态、功效、部位和用法组合搜索。非产品类用主题关键词或博主（如「北欧风服装店探店」）。</td></tr>
+<tr><th>输入</th><td>先记录采集入口：账号主页、关键词或指定素材。账号模式只筛该账号，不擅自扩大范围；关键词模式按产品形态、功效、部位或非产品主题细化检索。热度达标后仍须逐段商品/主题准入。</td></tr>
 <tr><th>输出</th><td>候选清单、互动数据排名、候选原片 MP4（产品类只将通过准入的裁片放进 config 的素材目录）；固定素材编号 → 平台原视频ID（文本）→ 原链接 → 本地文件名的映射。排序、补采不改已引用的编号。</td></tr>
 <tr><th>要点</th><td>只读不互动。每次 ≤3 个关键词、每词滚 2 次、词间隔 30–45 秒，单条间隔 25–40 秒；遇到 502/空数据/验证码立即停。<br>优先探店实拍、长镜头、字幕少的；别人剪好的快切合集基本没用。</td></tr>
 </table></div>
@@ -57,7 +58,7 @@ pre{background:#2a2420;color:#f3e9da;padding:12px 14px;border-radius:8px;overflo
 <div class="node" id="n1"><h3><b>1</b>爆款拆解</h3><table>
 <tr><th>工具</th><td><code>transcribe.py</code>（本地 faster-whisper 逐句转写）、<code>ref_compare.py</code>（量切点节奏）</td></tr>
 <tr><th>输出</th><td>每条爆款一个结构编号 <b>S1…Sn</b>，记下主对标固定素材编号与原链接：钩子 / 要点数 / 原片各段时间与功能 / 语速 / 结尾引导；按目标时长分配新片各段，建立原片功能 → 新文案 → 成片画面的逐段对照。</td></tr>
-<tr><th>要点</th><td>一批几条成片就拆几条爆款，一条成片只用一个结构，后面才能比较哪个结构好。外语对标加 <code>--lang=en</code> 等。只借结构，不抄文字。主结构对标和补充画面来源分开标；开头强化、压缩、重排都如实说明。</td></tr>
+<tr><th>要点</th><td>每条成片有独立结构安排，原片可复用为不同改编，但原参考数与成片数分别记录，不虚构新增对标。原片语言单独识别，混合语言按段转写，不按成片语言强制识别。只借结构不抄文字。主结构对标、补充画面与改编变体分开标，强化、压缩、重排均如实说明。</td></tr>
 </table></div>
 
 <div class="node" id="n2"><h3><b>2</b>扫素材 + 打标签</h3><table>
@@ -80,7 +81,7 @@ pre{background:#2a2420;color:#f3e9da;padding:12px 14px;border-radius:8px;overflo
 </table></div>
 
 <div class="node" id="n5"><h3><b>5</b>写分镜 <code>分镜_&lt;版本&gt;.json</code></h3><table>
-<tr><th>工具</th><td><code>plan_beats.py</code> 按口播时间建议分段 → 手填 → <code>coverage.py</code> 覆盖检查</td></tr>
+<tr><th>工具</th><td><code>plan_beats.py</code> 按口播时间建议分段 → 手填 → <code>coverage.py</code> 覆盖检查。<code>caption_layout.py</code>按实际字体字宽和逐词时间戳分字幕屏，渲染前再次检查；预览与剪映使用同一份字幕。</td></tr>
 <tr><th>每段字段</th><td><code>句</code> / <code>起字</code> / <code>要点</code> / <code>必需</code>(1–2 标签) / <code>优先</code> / <code>关键词</code>(词 必须和录音一致、显示、音效) / <code>出转场</code>(闪白·模糊·叠化)</td></tr>
 <tr><th>要点</th><td>文件名带结构号：<code>分镜_S1_AI.json</code>，里面写 <code>爆款结构</code>、<code>对标链接</code>，草稿名 <code>品类_S1_AI_V1</code>。英语等语言「起字」=第几个词。真人版、AI 版语速不同，各写一份。同一要点连 2–3 个同类镜头。大字和音效只放开头、每个要点标题、结尾提问。coverage 里合格数 0 的段先补素材。</td></tr>
 </table></div>
@@ -100,7 +101,7 @@ pre{background:#2a2420;color:#f3e9da;padding:12px 14px;border-radius:8px;overflo
 
 <div class="node" id="n8"><h3><b>8</b>自检</h3><table>
 <tr><th>工具</th><td><code>qa.py &lt;项目&gt; &lt;版本&gt;</code>、<code>ref_compare.py</code>（和对标比节奏）、<code>shot_stats.py</code>（查相邻镜头亮度/色温跳变）</td></tr>
-<tr><th>检查</th><td>镜头时长、切点位置、必需标签、窗重复、越界、总时长帧数；生成 <code>检查_逐段对照.png</code>。检查结构映射、残留原字幕和主体完整性。<code>qa.py</code>核对成片与 EDL 的时长。约定时长偏差较大时提示复看节奏。明确填写容差时按范围验收，允许一帧的编码误差。产品类逐镜复看他品露出、功效归因和商品角标。全部通过后才交给人审。</td></tr>
+<tr><th>检查</th><td>镜头时长、切点位置、必需标签、窗重复、越界、总时长帧数、字幕实际宽度和全动态模式的静态主画面；生成 <code>检查_逐段对照.png</code>。元数据不能发现所有已烘焙定格，仍需动态检测及复看。检查结构映射、残字、主体、他品、功效归因与角标。约定时长偏差大时复看内容，明确容差时按范围验收，允许一帧误差。逐条通过后才报告验收完成。</td></tr>
 </table></div>
 
 <div class="node" id="n9"><h3><b>9</b>装进剪映</h3><table>
@@ -115,11 +116,12 @@ pre{background:#2a2420;color:#f3e9da;padding:12px 14px;border-radius:8px;overflo
 </table></div>
 
 <h2>飞书编号、标签与来源关联</h2>
+<div class="node"><p><b>预览确认后续作：</b>沿用已确认的画面/声音/角标要求，“再出10条”记录为新增10条，保留原成片并继续编号。每条重写钩子、卖点顺序和对应镜头，不仅换标题或旁白。交付统一预览入口、各条MP4和可编辑草稿、素材、字幕、中外文文案与来源表；入口逐一核对。进度分别报告已导出数与已验收数。</p></div>
 <div class="node"><p>使用固定素材编号（如 <code>TC-20261105-021</code>），不用排序后的行号。素材库「引用标签」多选标明 <code>S1｜主结构对标</code>、<code>S1｜脏污开场</code>等；成片表「主结构对标」「画面来源」关联原片记录。原片ID按文本保存，对应本地文件名。</p><p>「参考视频与节奏说明」写原片结构各段与新片的对应；「分镜与素材编号」写成片起止 → 固定素材编号 → 原片起止 → 用途。保留其他成片已有标签，写完回读验收。完整字段与示例见 <a href="飞书编号与引用对齐.md">飞书编号与引用对齐</a>。</p></div>
 
 <h2>换新品类/国家要改的</h2>
 <div class="node"><table>
-<tr><th>config</th><td><code>语言</code>、<code>名称</code>、<code>目标时长秒</code>、<code>时长容差秒</code>、<code>素材目录</code>、<code>音效目录</code>、<code>标签词表</code>（如服装：上身全身 / 面料特写 / 细节_领口 / 场景_通勤）、<code>排除标签</code></td></tr>
+<tr><th>config</th><td><code>采集</code>、<code>画面模式</code>、<code>语言</code>、<code>名称</code>、<code>目标时长秒</code>、<code>时长容差秒</code>、<code>素材目录</code>、<code>音效目录</code>、<code>标签词表</code>、<code>排除标签</code>；字幕安全宽度在规则中配置。</td></tr>
 <tr><th>文稿</th><td>新写，先对素材</td></tr>
 <tr><th>分镜</th><td>真人、AI 各一份，标签用新词表</td></tr>
 <tr><th>不用改</th><td>tools/ 全部、规则参数（除非品类节奏明显不同）</td></tr>

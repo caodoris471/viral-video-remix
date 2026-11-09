@@ -4,7 +4,8 @@
 """
 from pathlib import Path
 import shutil, subprocess, sys
-from common import load, save, clip_geom
+from common import load, save, clip_geom, full_motion, static_shot
+from caption_layout import fit_captions
 import lang as L
 
 FONT = "C\\:/Windows/Fonts/msyhbd.ttc"
@@ -205,7 +206,10 @@ def preview(edl, cfg, out):
     g += f";\n[{base_label}]null"
     for c in edl["字幕"]:
         safe = c["文本"].replace("'", "’").replace(":", "：" if LANG in ("zh", "ja") else r"\:").replace("%", r"\%")
-        g += (f",drawtext=fontfile='{FONT}':text='{safe}':fontsize=60:fontcolor=white:borderw=4:bordercolor=black@0.85:"
+        subtitle_style = "fontsize=60:fontcolor=white:borderw=4"
+        if "字号" in c:
+            subtitle_style = subtitle_style.replace("fontsize=60", f"fontsize={c['字号']}")
+        g += (f",drawtext=fontfile='{FONT}':text='{safe}':{subtitle_style}:bordercolor=black@0.85:"
               f"x=(w-text_w)/2:y=h*0.74-text_h/2:enable='between(t,{c['起']},{c['止']})'")
     for k in edl["关键词"]:
         if k["槽"] is None:   # 大字：按分到的样式逐字出现（样式见 KW_STYLES）
@@ -353,8 +357,10 @@ def draft(edl, cfg, out):
     place(j.TrackType.audio, "音效", segs)
     segs = []
     for c in edl["字幕"]:
+        subtitle_style = j.TextStyle(size=10.5, bold=True, align=1)
+        subtitle_style.size *= c.get("字号", 60) / 60
         seg = j.TextSegment(c["文本"], j.Timerange(us(c["起"]), us(c["止"]) - us(c["起"])), font=FontType.抖音美好体,
-                            style=j.TextStyle(size=10.5, bold=True, align=1), border=j.TextBorder(width=60),
+                            style=subtitle_style, border=j.TextBorder(width=60),
                             clip_settings=j.ClipSettings(transform_y=-0.40))
         segs.append((seg, us(c["起"]), us(c["止"])))
     place(j.TrackType.text, "句字幕", segs)
@@ -388,6 +394,10 @@ def main(proj, edl_name):
     proj = Path(proj)
     cfg = load(proj / "config.json")
     edl = load(proj / "work" / edl_name)
+    if full_motion(cfg, edl) and (edl.get("结尾图") or any(static_shot(s, cfg) for s in edl["镜头"] if not s.get("占位"))):
+        raise ValueError("全动态模式含静态主画面，请换连续视频；产品PNG可保留在角标轨")
+    timestamps = load(edl["时间戳"]) if edl.get("时间戳") else {}
+    edl["字幕"] = fit_captions(edl["字幕"], timestamps, edl.get("语言", "zh"), cfg)
     set_lang(edl.get("语言", "zh"))
     for k, s in zip(edl["关键词"], pick_styles(edl["关键词"], edl["草稿名"])):
         k["_样式"] = s
@@ -410,7 +420,7 @@ def main(proj, edl_name):
         print("音效库里缺这些文件，已跳过:", sorted(set(miss)))
     mp4 = preview(edl, cfg, out)
     draft(edl, cfg, out)
-    shutil.copy2(proj / "work" / edl_name, out / "编辑决定表.json")
+    save(out / "编辑决定表.json", edl)
     print("出片", mp4)
 
 
